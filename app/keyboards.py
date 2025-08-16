@@ -1,4 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from app.database.requests import get_categories, get_category_item
 
 main = ReplyKeyboardMarkup(keyboard= [[KeyboardButton(text='Каталог')],
                                         [KeyboardButton(text='Корзина')],
@@ -7,15 +9,19 @@ main = ReplyKeyboardMarkup(keyboard= [[KeyboardButton(text='Каталог')],
                            resize_keyboard = True,
                            input_field_placeholder = 'Выберите пункт меню')
 
+async def categories():
+    all_categories = await get_categories()
+    keyboard = InlineKeyboardBuilder()
+    for category in all_categories:
+        keyboard.add(InlineKeyboardButton(text=category.name, callback_data= f'category_{category.id}'))
+    keyboard.add(InlineKeyboardButton(text='На главную', callback_data='to_main'))
+    return keyboard.adjust(2).as_markup()
 
-catalog = InlineKeyboardMarkup(inline_keyboard = [
-    [InlineKeyboardButton(text = 'Кросовки', callback_data='sneakers')],
-    [InlineKeyboardButton(text = 'Футболки', callback_data='t-shirts')],
-    [InlineKeyboardButton(text = 'Кепки', callback_data='caps')],
-])
 
-
-get_number = ReplyKeyboardMarkup(keyboard = [
-    [KeyboardButton(text='Отправить номер',
-                    request_contact = True)]],
-    resize_keyboard = True)
+async def items(category_id):
+    all_items = await get_category_item(category_id)
+    keyboard = InlineKeyboardBuilder()
+    for item in all_items:
+        keyboard.add(InlineKeyboardButton(text=item.name, callback_data= f'category_{item.id}'))
+    keyboard.add(InlineKeyboardButton(text='На главную', callback_data='to_main'))
+    return keyboard.adjust(2).as_markup()

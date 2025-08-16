@@ -1,35 +1,23 @@
-from sqlalchemy import BigInteger, String, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
+from app.database.models import async_session
+from app.database.models import User, Category, Item
+from sqlalchemy import select
 
-engine = create_async_engine(url = 'sqlite+aiosqlite:///db.sqlite3')
 
-async_session = async_sessionmaker(engine)
+async def set_user(tg_id):
+    async with async_session() as session:
+        user= await session.scalar(select(User).where(User.tg_id==tg_id))
+        if not user:
+            session.add(User(tg_id=tg_id))
+            await session.commit()
 
-class Base(AsyncAttrs, DeclarativeBase):
-    pass
+async def get_categories():
+    async with async_session() as session:
+        return await session.scalars(select(Category))
 
-class User(Base):
-    __tablename__ = 'users'
+async def get_category_item(category_id):
+    async with async_session() as session:
+        return await session.scalars(select(Item).where(Item.category == category_id))
 
-    id: Mapped[int] = mapped_column(primary_key= True)
-    tg_id = mapped_column(BigInteger)
-
-class Category(Base):
-    __tablename__ = 'categories'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50))
-
-class Item(Base):
-    __tablename__ = 'items'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(25))
-    description: Mapped[str] = mapped_column(String(125))
-    price: Mapped[int] = mapped_column()
-    category = Mapped[int] = mapped_column(ForeignKey('categories.id'))
-
-async def async_main():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+async def get_item(item_id):
+    async with async_session() as session:
+        return await session.scallar(select(Item.id == item_id))
