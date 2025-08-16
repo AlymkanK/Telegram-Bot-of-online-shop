@@ -9,6 +9,17 @@ main = ReplyKeyboardMarkup(keyboard= [[KeyboardButton(text='Каталог')],
                            resize_keyboard = True,
                            input_field_placeholder = 'Выберите пункт меню')
 
+about = ReplyKeyboardMarkup(
+                            keyboard = [
+                                [KeyboardButton(text='Наши контакты: +996 99 999')],
+                                [KeyboardButton(text='Связаться')]
+                            ],
+                            resize_keyboard=True,
+                            input_field_placeholder='Выберите пункт меню')
+
+whatsapp_button = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text = 'Написать в вотсапп', url = 'https://wa.me/996500588480')]])
+
 async def categories():
     all_categories = await get_categories()
     keyboard = InlineKeyboardBuilder()
@@ -25,3 +36,6 @@ async def items(category_id):
         keyboard.add(InlineKeyboardButton(text=item.name, callback_data= f'category_{item.id}'))
     keyboard.add(InlineKeyboardButton(text='На главную', callback_data='to_main'))
     return keyboard.adjust(2).as_markup()
+
+
+

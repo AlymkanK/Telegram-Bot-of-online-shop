@@ -18,6 +18,11 @@ async def cmd_start(message:Message):
     await rq.set_user(message.from_user.id)
     await message.answer('Добро пожаловать в наш магазин', reply_markup = kb.main)
 
+@router.message(F.text == 'Контакты')
+async def contacts(message:Message):
+    await message.answer('Благодарим', reply_markup=kb.whatsapp_button)
+
+
 
 @router.message(F.text == 'Каталог')
 async def catalog(message:Message):
@@ -33,5 +38,5 @@ async def category(callback:CallbackQuery):
 async def category(callback:CallbackQuery):
     item_data = await rq.get_item(callback.data.split('_')[1])
     await callback.answer('Вы выбрали товар')
-    await callback.message.answer(f'Газвание: {item_data.name}\n Описание: {item_data.description}\n Цена: {item_data.price}$\n',
+    await callback.message.answer(f'название: {item_data.name}\n Описание: {item_data.description}\n Цена: {item_data.price}$\n',
                                   reply_markup = await kb.items(callback.data.split('_')[1]))
